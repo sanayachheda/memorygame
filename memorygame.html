@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>memory match </title>
+        <style>
+            body {
+                font-family: monospace;
+                text-align: center;
+                background: #f0f0f0;
+            }
+            h1{
+                margin-top: 20px;
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(4, 80px);
+                gap: 10px;
+                justify-content: center;
+                margin-top: 30px;
+            }
+            .card {
+                width: 80px;
+                height: 80px;
+                background-color: lightpink;
+                color: black;
+                font-size: 2em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                border-radius: 8px;
+                user-select: none;
+            }
+            .flipped {
+                background-color: lightsalmon;
+
+            }
+            .matched{
+                background-color: antiquewhite;
+                pointer-events: none;
+            }
+
+        </style>
+    </head>
+    <body>
+        <h1>memory match</h1>
+        <div class="grid" id="grid"></div>
+
+        <script>
+            const symbols = ['1','2','3','4','5','6','7','8','1','2','3','4','5','6','7','8'];
+            let cards = [];
+            let first, second, lock=false
+
+            function shuffle(arr) {
+                return arr.sort(() => Math.random()- 0.5);
+            }
+
+            function createBoard(){
+                const grid = document.getElementById('grid');
+                grid.innerHTML = '';
+                cards = shuffle([...symbols]);
+                cards.forEach((symbol, i) => {
+                    const div=document.createElement('div');
+                    div.className = 'card';
+                    div.dataset.symbol = symbol;
+                    div.dataset.index = i;
+                    div.addEventListener('click',flipCard);
+                    grid.appendChild(div);
+                });
+            }
+
+            function flipCard(e) {
+                if (lock) return;
+                const card = e.target;
+                if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+                card.textContent = card.dataset.symbol;
+                card.classList.add('flipped');
+
+                if (!first) {
+                    first = card;
+                } else{
+                    second = card;
+                    lock = true;
+                    setTimeout(checkMatch, 700);
+                }
+            }
+
+            function checkMatch() {
+                if (first.dataset.symbol === second.dataset.symbol) {
+                    first.classList.add('matched');
+                    second.classList.add('matched');
+                } else{
+                    first.textContent = '';
+                    second.textContent = '';
+                    first.classList.remove('flipped');
+                    second.classList.remove('flipped');
+                }
+                first = second = null;
+                lock = false;
+
+                if (document.querySelectorAll('.matched').legnth === 16){
+                    setTimeout(() => alert('You matched all the pairs!'),300);
+                }
+            }
+            createBoard();
+        </script>
+    </body>
+</html>
